@@ -37,6 +37,10 @@ bot.on("ready", () => {
 bot.on("interactionCreate", async (data) => {
     if(!data.isApplicationCommand()) return;
     if(data.commandName == "activity") {
+        const fetching = new MessageEmbed()
+            .setTitle("Gettling Link...")
+            .setColor("#1D87FF")
+        await data.reply({embeds:[fetching]})
         const ch = bot.channels.cache.get(data.options.get("ch", true).value)
         let inviteData = await fetch(`https://discord.com/api/v8/channels/${ch.id}/invites`, {
             method: 'POST',
@@ -52,6 +56,22 @@ bot.on("interactionCreate", async (data) => {
                 "Content-Type": "application/json"
             }
         }).then(response => response.json())
+        console.log(inviteData)
+        if(inviteData.message == "Missing Permissions") {
+            const embed = new MessageEmbed()
+                .setTitle("Missing Permissions")
+                .setColor("#FF1D1D")
+                .setDescription("Please give me the `Create Invite` permission in <#" + ch.id + ">")
+            await data.editReply({embeds:[embed]})
+            return
+        } else if(inviteData.message == "You are being rate limited.") {
+            const embed = new MessageEmbed()
+                .setTitle("Sending Commands Too Fast")
+                .setColor("#FF1D1D")
+                .setDescription("You are sending commands too fast, please slow it down.")
+            await data.editReply({embeds:[embed]})
+            return
+        }
         let invite = `https://discord.gg/${inviteData.code}`
         const embed = new MessageEmbed()
         embed.setThumbnail(`https://cdn.discordapp.com/app-icons/${inviteData.target_application.id}/${inviteData.target_application.icon}.png`)
@@ -118,14 +138,17 @@ bot.on("interactionCreate", async (data) => {
                 break
             }
         }
-        data.reply({embeds:[embed]})
+        console.log("Test")
+        await data.editReply({embeds:[embed]})
+        return
     } else if(data.commandName == "invite") {
         const embed = new MessageEmbed()
             .setTitle("Click to add to your server")
             .setDescription(`Author: Prorickey#0001\nGitHub: https://github.com/Prorickey/ActivityBot`)
             .setColor("#FF4B4B")
-            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENTID}&permissions=0&scope=applications.commands%20bot`)
-        data.reply({embeds:[embed]})
+            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENTID}&permissions=1&scope=applications.commands%20bot`)
+        await data.reply({embeds:[embed]})
+        return
     }
 })
 
