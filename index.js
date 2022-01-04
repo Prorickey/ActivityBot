@@ -122,7 +122,7 @@ bot.on("interactionCreate", async (data) => {
     } else if(data.commandName == "invite") {
         const embed = new MessageEmbed()
             .setTitle("Click to add to your server")
-            .setDescription()
+            .setDescription(`Author: Prorickey#0001\nGitHub: https://github.com/Prorickey/ActivityBot`)
             .setColor("#FF4B4B")
             .setURL(`https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENTID}&permissions=0&scope=applications.commands%20bot`)
         data.reply({embeds:[embed]})
